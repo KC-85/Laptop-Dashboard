@@ -15,6 +15,9 @@ This will return a CPUFrequency object containing the current, minimum, and maxi
 
 To get the CPU load average.
 This will return a tuple containing the 1-minute, 5-minute, and 15-minute load averages.
+
+To get the temperature of each physical CPU core.
+This will return a list of CoreTemperature objects for the available core sensors.
 """
 
 from dataclasses import dataclass
@@ -22,9 +25,14 @@ from dataclasses import dataclass
 import psutil
 
 
-def get_cpu_usage() -> float:
+def prime_cpu_usage() -> None:
+    """Prime psutil's counters before non-blocking CPU usage polling."""
+    psutil.cpu_percent(interval=None)
+    psutil.cpu_percent(interval=None, percpu=True)
 
-    return psutil.cpu_percent(interval=1)
+
+def get_cpu_usage() -> float:
+    return psutil.cpu_percent(interval=None)
 
 
 def get_core_count() -> tuple[int | None, int | None]:
@@ -35,8 +43,7 @@ def get_core_count() -> tuple[int | None, int | None]:
 
 
 def get_per_core_usage() -> list[float]:
-
-    return psutil.cpu_percent(interval=1, percpu=True)
+    return psutil.cpu_percent(interval=None, percpu=True)
 
 
 @dataclass
@@ -81,3 +88,22 @@ def get_cpu_temperature() -> float | None:
         pass
 
     return None
+
+
+@dataclass
+class CoreTemperature:
+    label: str
+    current: float
+
+
+def get_core_temperatures() -> list[CoreTemperature]:
+    try:
+        temps = psutil.sensors_temperatures()
+    except AttributeError:
+        return []
+
+    return [
+        CoreTemperature(label=reading.label, current=reading.current)
+        for reading in temps.get("coretemp", [])
+        if reading.label.startswith("Core ")
+    ]
