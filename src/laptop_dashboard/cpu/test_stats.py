@@ -25,3 +25,25 @@ def test_get_core_count():
 def test_get_per_core_usage():
     with patch("psutil.cpu_percent", return_value=[10.0, 20.0, 30.0, 40.0]):
         assert stats.get_per_core_usage() == [10.0, 20.0, 30.0, 40.0]
+
+
+def test_get_cpu_frequency() -> None:
+    mock_freq = SimpleNamespace(current=2500.0, min=1200.0, max=3500.0)
+    with patch("psutil.cpu_freq", return_value=mock_freq):
+        freq = stats.get_cpu_frequency()
+        assert freq.current == 2500.0
+        assert freq.min == 1200.0
+        assert freq.max == 3500.0
+
+def test_get_cpu_frequency_when_unavailable() -> None:
+    with patch("psutil.cpu_freq", return_value=None):
+        freq = stats.get_cpu_frequency()
+        assert freq.current is None
+        assert freq.min is None
+        assert freq.max is None
+
+
+def test_cpu_frequency_str() -> None:
+    freq = stats.CPUFrequency(current=2500.0, min=1200.0, max=3500.0)
+    expected_str = "Current: 2500.0 MHz, Min: 1200.0 MHz, Max: 3500.0 MHz"
+    assert str(freq) == expected_str
