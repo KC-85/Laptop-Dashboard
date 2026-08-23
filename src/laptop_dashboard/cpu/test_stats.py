@@ -20,3 +20,8 @@ def test_get_core_count():
         physical, logical = stats.get_core_count()
         assert physical == 4
         assert logical == 8
+
+
+def test_get_per_core_usage():
+    with patch("psutil.cpu_percent", return_value=[10.0, 20.0, 30.0, 40.0]):
+        assert stats.get_per_core_usage() == [10.0, 20.0, 30.0, 40.0]
