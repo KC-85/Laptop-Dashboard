@@ -1,5 +1,5 @@
 """
-CPU Stats. This file contains functions to retrieve CPU statistics such as usage, frequency, and temperature.
+CPU Stats. This file contains functions to retrieve CPU statistics such as usage, frequency, temperature and load average.
 
 To get the current CPU usage percentage.
 This will return a float value representing the current CPU usage percentage.
@@ -68,3 +68,16 @@ def get_cpu_frequency() -> CPUFrequency:
 
 def get_load_average() -> tuple[float, float, float]:
     return psutil.getloadavg()
+
+
+def get_cpu_temperature() -> float | None:
+    try:
+        temps = psutil.sensors_temperatures()
+        if "coretemp" in temps:
+            core_temps = temps["coretemp"]
+            if core_temps:
+                return core_temps[0].current
+    except (AttributeError, KeyError):
+        pass
+
+    return None
