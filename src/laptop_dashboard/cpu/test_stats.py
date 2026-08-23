@@ -3,7 +3,6 @@ This module contains unit tests for the CPU statistics functionality in the lapt
 The tests cover various scenarios to ensure accurate data collection and processing of CPU metrics.
 """
 
-
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -47,3 +46,25 @@ def test_cpu_frequency_str() -> None:
     freq = stats.CPUFrequency(current=2500.0, min=1200.0, max=3500.0)
     expected_str = "Current: 2500.0 MHz, Min: 1200.0 MHz, Max: 3500.0 MHz"
     assert str(freq) == expected_str
+
+
+def test_load_average():
+    with patch("psutil.getloadavg", return_value=(0.5, 0.75, 1.0)):
+        load_avg = stats.get_load_average()
+        assert load_avg == (0.5, 0.75, 1.0)
+
+
+def test_get_cpu_temperature() -> float | None:
+    with patch("psutil.sensors_temperatures", return_value={"coretemp": [SimpleNamespace(current=55.0)]}):
+        temp = stats.get_cpu_temperature()
+        assert temp == 55.0
+
+    with patch("psutil.sensors_temperatures", return_value={}):
+        temp = stats.get_cpu_temperature()
+        assert temp is None
+
+
+def test_get_cpu_temperature_when_coretemp_unavailable() -> float | None:
+    with patch("psutil.sensors_temperatures", return_value={"other": [SimpleNamespace(current=60.0)]}):
+        temp = stats.get_cpu_temperature()
+        assert temp is None
