@@ -12,13 +12,15 @@ from laptop_dashboard.cpu.stats import (
     get_per_core_usage,
     prime_cpu_usage,
 )
+from laptop_dashboard.memory.stats import get_memory_stats, get_swap_stats
 
 
 def main() -> None:
-    """Display a snapshot of the laptop's CPU statistics."""
+    """Display a snapshot of the laptop's system statistics."""
     prime_cpu_usage()
     time.sleep(1)
 
+    gib = 1024**3
     cpu_usage = get_cpu_usage()
     physical_cores, logical_cpus = get_core_count()
     per_core_usage = get_per_core_usage()
@@ -26,6 +28,9 @@ def main() -> None:
     frequency = get_cpu_frequency()
     load_1, load_5, load_15 = get_load_average()
     temperature = get_cpu_temperature()
+    memory = get_memory_stats()
+    swap = get_swap_stats()
+
     print("Laptop Dashboard")
     print(f"CPU usage: {cpu_usage}%")
     print(f"Physical cores: {physical_cores}")
@@ -49,3 +54,16 @@ def main() -> None:
 
     for core_number, core_usage in enumerate(per_core_usage, start=1):
         print(f"  Core {core_number}: {core_usage}%")
+
+    print("Memory:")
+    print(f"  Used: {memory.used / gib:.2f} / {memory.total / gib:.2f} GiB")
+    print(f"  Available: {memory.available / gib:.2f} GiB")
+    print(f"  Usage: {memory.percentage}%")
+
+    print("Swap:")
+    if swap.total == 0:
+        print("  Disabled")
+    else:
+        print(f"  Used: {swap.used / gib:.2f} / {swap.total / gib:.2f} GiB")
+        print(f"  Free: {swap.free / gib:.2f} GiB")
+        print(f"  Usage: {swap.percentage}%")
