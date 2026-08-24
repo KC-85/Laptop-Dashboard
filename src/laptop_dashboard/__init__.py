@@ -13,6 +13,11 @@ from laptop_dashboard.cpu.stats import (
     prime_cpu_usage,
 )
 from laptop_dashboard.memory.stats import get_memory_stats, get_swap_stats
+from laptop_dashboard.storage.stats import (
+    get_filesystem_type,
+    get_mounted_storage,
+    get_storage_stats,
+)
 
 
 def main() -> None:
@@ -30,6 +35,11 @@ def main() -> None:
     temperature = get_cpu_temperature()
     memory = get_memory_stats()
     swap = get_swap_stats()
+    storage = get_storage_stats()
+    filesystem_type = get_filesystem_type()
+    mounted_storage = [
+        mounted for mounted in get_mounted_storage() if mounted.mount_point != "/"
+    ]
 
     print("Laptop Dashboard")
     print(f"CPU usage: {cpu_usage}%")
@@ -67,3 +77,20 @@ def main() -> None:
         print(f"  Used: {swap.used / gib:.2f} / {swap.total / gib:.2f} GiB")
         print(f"  Free: {swap.free / gib:.2f} GiB")
         print(f"  Usage: {swap.percentage}%")
+
+    print("Storage (/):")
+    print(f"  Filesystem: {filesystem_type or 'Unavailable'}")
+    print(f"  Used: {storage.used / gib:.2f} / {storage.total / gib:.2f} GiB")
+    print(f"  Free: {storage.free / gib:.2f} GiB")
+    print(f"  Usage: {storage.percentage}%")
+
+    print("Other mounted filesystems:")
+    if mounted_storage:
+        for mounted in mounted_storage:
+            print(f"  {mounted.device} at {mounted.mount_point} ({mounted.fstype})")
+            print(
+                f"    Used: {mounted.used / gib:.2f} / "
+                f"{mounted.total / gib:.2f} GiB ({mounted.percentage}%)"
+            )
+    else:
+        print("  None")
