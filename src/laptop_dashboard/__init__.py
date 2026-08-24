@@ -2,6 +2,11 @@
 
 import time
 
+from laptop_dashboard.battery.stats import (
+    get_battery_health_percentage,
+    get_battery_stats,
+    get_battery_temperature,
+)
 from laptop_dashboard.cpu.stats import (
     get_core_count,
     get_core_temperatures,
@@ -18,6 +23,17 @@ from laptop_dashboard.storage.stats import (
     get_mounted_storage,
     get_storage_stats,
 )
+
+
+def _format_duration(seconds: int) -> str:
+    hours, remainder = divmod(seconds, 3600)
+    minutes, remaining_seconds = divmod(remainder, 60)
+
+    if hours:
+        return f"{hours}h {minutes}m"
+    if minutes:
+        return f"{minutes}m"
+    return f"{remaining_seconds}s"
 
 
 def main() -> None:
@@ -40,6 +56,9 @@ def main() -> None:
     mounted_storage = [
         mounted for mounted in get_mounted_storage() if mounted.mount_point != "/"
     ]
+    battery = get_battery_stats()
+    battery_health = get_battery_health_percentage()
+    battery_temperature = get_battery_temperature()
 
     print("Laptop Dashboard")
     print(f"CPU usage: {cpu_usage}%")
@@ -77,6 +96,29 @@ def main() -> None:
         print(f"  Used: {swap.used / gib:.2f} / {swap.total / gib:.2f} GiB")
         print(f"  Free: {swap.free / gib:.2f} GiB")
         print(f"  Usage: {swap.percentage}%")
+
+    print("Battery:")
+    if battery is None:
+        print("  Not detected")
+    else:
+        print(f"  Charge: {battery.percent:.1f}%")
+        power_status = "Plugged in" if battery.is_plugged_in else "On battery"
+        print(f"  Power: {power_status}")
+
+        if battery.seconds_remaining is None:
+            print("  Time remaining: unavailable")
+        else:
+            print(f"  Time remaining: {_format_duration(battery.seconds_remaining)}")
+
+        if battery_health is None:
+            print("  Health: unavailable")
+        else:
+            print(f"  Health: {battery_health:.1f}%")
+
+        if battery_temperature is None:
+            print("  Temperature: unavailable")
+        else:
+            print(f"  Temperature: {battery_temperature:.1f}°C")
 
     print("Storage (/):")
     print(f"  Filesystem: {filesystem_type or 'Unavailable'}")
