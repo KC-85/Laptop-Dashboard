@@ -14,7 +14,6 @@ import psutil
 class MemoryStats:
     total: int
     used: int
-    free: int
     available: int
     percentage: float
 
@@ -24,7 +23,6 @@ class SwapStats:
     total: int
     used: int
     free: int
-    available: int
     percentage: float
 
 
@@ -34,7 +32,6 @@ def get_memory_stats() -> MemoryStats:
     return MemoryStats(
         total=mem.total,
         used=mem.used,
-        free=mem.free,
         available=mem.available,
         percentage=mem.percent,
     )
@@ -47,6 +44,5 @@ def get_swap_stats() -> SwapStats:
         total=swap.total,
         used=swap.used,
         free=swap.free,
-        available=swap.free,  # Swap does not have an 'available' attribute, using 'free' instead
         percentage=swap.percent,
     )
