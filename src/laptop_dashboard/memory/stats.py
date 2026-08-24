@@ -1,7 +1,11 @@
 """
-This will show the memory stats of the system. It will show the total, used, free, and available memory in bytes.
-It will also show the memory usage percentage and the swap memory stats.
-The output will be in a human-readable format.
+Collect system memory and swap statistics.
+
+Memory statistics include total, used, and available RAM in bytes,
+along with the usage percentage. Swap statistics include total,
+used, and free swap in bytes, along with the usage percentage.
+
+Human-readable formatting is handled by the presentation layer.
 """
 
 
