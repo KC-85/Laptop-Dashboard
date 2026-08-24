@@ -41,3 +41,54 @@ def test_get_filesystem_type_when_root_is_missing() -> None:
 
     with patch.object(stats.psutil, "disk_partitions", return_value=partitions):
         assert stats.get_filesystem_type() is None
+
+
+def test_get_mounted_storage() -> None:
+    partitions = [
+        SimpleNamespace(device="/dev/sda1", mountpoint="/", fstype="ext4"),
+        SimpleNamespace(device="/dev/sda2", mountpoint="/boot", fstype="vfat"),
+    ]
+
+    mock_usage_root = SimpleNamespace(
+        total=256 * 1024**3,
+        used=128 * 1024**3,
+        free=128 * 1024**3,
+        percent=50.0,
+    )
+
+    mock_usage_boot = SimpleNamespace(
+        total=512 * 1024**2,
+        used=256 * 1024**2,
+        free=256 * 1024**2,
+        percent=50.0,
+    )
+
+    with (
+        patch.object(stats.psutil, "disk_partitions", return_value=partitions),
+        patch.object(
+            stats.psutil,
+            "disk_usage",
+            side_effect=[mock_usage_root, mock_usage_boot],
+        ),
+    ):
+        mounted_storage = stats.get_mounted_storage()
+
+    assert len(mounted_storage) == 2
+    assert mounted_storage[0] == stats.MountedStorage(
+        device="/dev/sda1",
+        mount_point="/",
+        fstype="ext4",
+        total=256 * 1024**3,
+        used=128 * 1024**3,
+        free=128 * 1024**3,
+        percentage=50.0,
+    )
+    assert mounted_storage[1] == stats.MountedStorage(
+        device="/dev/sda2",
+        mount_point="/boot",
+        fstype="vfat",
+        total=512 * 1024**2,
+        used=256 * 1024**2,
+        free=256 * 1024**2,
+        percentage=50.0,
+    )

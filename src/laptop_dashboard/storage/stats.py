@@ -37,3 +37,38 @@ def get_filesystem_type() -> str | None:
         if partition.mountpoint == "/":
             return partition.fstype
     return None
+
+
+@dataclass
+class MountedStorage:
+    device: str
+    mount_point: str
+    fstype: str
+    total: int
+    used: int
+    free: int
+    percentage: float
+
+
+def get_mounted_storage() -> list[MountedStorage]:
+    mounted_storage: list[MountedStorage] = []
+
+    for partition in psutil.disk_partitions():
+        try:
+            usage = psutil.disk_usage(partition.mountpoint)
+        except (PermissionError, OSError):
+            continue
+
+        mounted_storage.append(
+            MountedStorage(
+                device=partition.device,
+                mount_point=partition.mountpoint,
+                fstype=partition.fstype,
+                total=usage.total,
+                used=usage.used,
+                free=usage.free,
+                percentage=usage.percent,
+            )
+        )
+
+    return mounted_storage
