@@ -47,6 +47,7 @@ def test_get_mounted_storage() -> None:
     partitions = [
         SimpleNamespace(device="/dev/sda1", mountpoint="/", fstype="ext4"),
         SimpleNamespace(device="/dev/sda2", mountpoint="/boot", fstype="vfat"),
+        SimpleNamespace(device="/dev/sda1", mountpoint="/tmp", fstype="ext4"),
     ]
 
     mock_usage_root = SimpleNamespace(

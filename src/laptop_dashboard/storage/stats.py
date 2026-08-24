@@ -52,13 +52,18 @@ class MountedStorage:
 
 def get_mounted_storage() -> list[MountedStorage]:
     mounted_storage: list[MountedStorage] = []
+    seen_devices: set[str] = set()
 
     for partition in psutil.disk_partitions():
+        if partition.device in seen_devices:
+            continue
+
         try:
             usage = psutil.disk_usage(partition.mountpoint)
         except (PermissionError, OSError):
             continue
 
+        seen_devices.add(partition.device)
         mounted_storage.append(
             MountedStorage(
                 device=partition.device,
