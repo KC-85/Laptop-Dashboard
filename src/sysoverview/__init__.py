@@ -1,6 +1,9 @@
 """SysOverview command-line entry point."""
 
 import time
+from socket import AF_INET, AF_INET6
+
+from psutil import AF_LINK
 
 from sysoverview.battery.stats import (
     get_battery_health_percentage,
@@ -18,6 +21,7 @@ from sysoverview.cpu.stats import (
     prime_cpu_usage,
 )
 from sysoverview.memory.stats import get_memory_stats, get_swap_stats
+from sysoverview.network.stats import get_network_interfaces, get_network_totals
 from sysoverview.storage.stats import (
     get_filesystem_type,
     get_mounted_storage,
@@ -36,11 +40,22 @@ def _format_duration(seconds: int) -> str:
     return f"{remaining_seconds}s"
 
 
+def _format_network_address_family(family: int) -> str:
+    if family == int(AF_INET):
+        return "IPv4"
+    if family == int(AF_INET6):
+        return "IPv6"
+    if family == int(AF_LINK):
+        return "MAC"
+    return f"Family {family}"
+
+
 def main() -> None:
     """Display a snapshot of the laptop's system statistics."""
     prime_cpu_usage()
     time.sleep(1)
 
+    mib = 1024**2
     gib = 1024**3
     cpu_usage = get_cpu_usage()
     physical_cores, logical_cpus = get_core_count()
@@ -59,6 +74,8 @@ def main() -> None:
     battery = get_battery_stats()
     battery_health = get_battery_health_percentage()
     battery_temperature = get_battery_temperature()
+    network_totals = get_network_totals()
+    network_interfaces = get_network_interfaces()
 
     print("SysOverview")
     print(f"CPU usage: {cpu_usage}%")
@@ -134,5 +151,37 @@ def main() -> None:
                 f"    Used: {mounted.used / gib:.2f} / "
                 f"{mounted.total / gib:.2f} GiB ({mounted.percentage}%)"
             )
+    else:
+        print("  None")
+
+    print("Network totals (since boot):")
+    print(f"  Sent: {network_totals.bytes_sent / mib:.2f} MiB")
+    print(f"  Received: {network_totals.bytes_received / mib:.2f} MiB")
+    print(
+        f"  Packets: {network_totals.packets_sent} sent, "
+        f"{network_totals.packets_received} received"
+    )
+    print(f"  Errors: {network_totals.errors_in} in, {network_totals.errors_out} out")
+    print(
+        f"  Dropped: {network_totals.dropped_in} in, {network_totals.dropped_out} out"
+    )
+
+    print("Network interfaces:")
+    if network_interfaces:
+        for interface in network_interfaces:
+            status = "Up" if interface.is_up else "Down"
+            print(f"  {interface.name}: {status}")
+            if interface.speed_mbps > 0:
+                print(f"    Speed: {interface.speed_mbps} Mbps")
+            else:
+                print("    Speed: unavailable")
+            print(f"    MTU: {interface.mtu}")
+
+            if interface.addresses:
+                for address in interface.addresses:
+                    family = _format_network_address_family(address.family)
+                    print(f"    {family}: {address.address}")
+            else:
+                print("    Addresses: none")
     else:
         print("  None")
