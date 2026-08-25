@@ -1,12 +1,12 @@
 """
-This module contains unit tests for the memory statistics functionality in the laptop dashboard application.
+This module contains unit tests for the memory statistics functionality in SysOverview.
 The tests cover various scenarios to ensure accurate data collection and processing of memory metrics.
 """
 
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from laptop_dashboard.memory import stats
+from sysoverview.memory import stats
 
 
 def test_get_memory_stats() -> None:

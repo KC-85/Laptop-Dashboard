@@ -1,13 +1,13 @@
-"""Laptop Dashboard command-line entry point."""
+"""SysOverview command-line entry point."""
 
 import time
 
-from laptop_dashboard.battery.stats import (
+from sysoverview.battery.stats import (
     get_battery_health_percentage,
     get_battery_stats,
     get_battery_temperature,
 )
-from laptop_dashboard.cpu.stats import (
+from sysoverview.cpu.stats import (
     get_core_count,
     get_core_temperatures,
     get_cpu_frequency,
@@ -17,8 +17,8 @@ from laptop_dashboard.cpu.stats import (
     get_per_core_usage,
     prime_cpu_usage,
 )
-from laptop_dashboard.memory.stats import get_memory_stats, get_swap_stats
-from laptop_dashboard.storage.stats import (
+from sysoverview.memory.stats import get_memory_stats, get_swap_stats
+from sysoverview.storage.stats import (
     get_filesystem_type,
     get_mounted_storage,
     get_storage_stats,
@@ -60,7 +60,7 @@ def main() -> None:
     battery_health = get_battery_health_percentage()
     battery_temperature = get_battery_temperature()
 
-    print("Laptop Dashboard")
+    print("SysOverview")
     print(f"CPU usage: {cpu_usage}%")
     print(f"Physical cores: {physical_cores}")
     print(f"Logical CPUs: {logical_cpus}")

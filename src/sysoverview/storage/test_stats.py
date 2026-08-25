@@ -3,7 +3,7 @@
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from laptop_dashboard.storage import stats
+from sysoverview.storage import stats
 
 
 def test_get_storage_stats() -> None:

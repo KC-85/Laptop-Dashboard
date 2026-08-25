@@ -4,7 +4,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from laptop_dashboard.battery import stats
+from sysoverview.battery import stats
 
 
 def test_get_battery_stats() -> None:

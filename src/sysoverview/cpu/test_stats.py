@@ -1,12 +1,12 @@
 """
-This module contains unit tests for the CPU statistics functionality in the laptop dashboard application.
+This module contains unit tests for the CPU statistics functionality in SysOverview.
 The tests cover various scenarios to ensure accurate data collection and processing of CPU metrics.
 """
 
 from types import SimpleNamespace
 from unittest.mock import call, patch
 
-from laptop_dashboard.cpu import stats
+from sysoverview.cpu import stats
 
 
 def test_prime_cpu_usage() -> None:

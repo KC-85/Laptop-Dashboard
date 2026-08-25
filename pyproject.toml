@@ -1,7 +1,7 @@
 [project]
-name = "laptop-dashboard"
+name = "sysoverview"
 version = "0.1.0"
-description = "Add your description here"
+description = "A terminal-based system health monitor for Linux"
 readme = "README.md"
 authors = [
     { name = "Kristian Cross", email = "etamin1985@yahoo.com" }
@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [project.scripts]
-laptop-dashboard = "laptop_dashboard:main"
+sysoverview = "sysoverview:main"
 
 [build-system]
 requires = ["uv_build>=0.12.5,<0.13.0"]
